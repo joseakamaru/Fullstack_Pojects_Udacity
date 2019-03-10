@@ -47,7 +47,7 @@ class MessageHandler(BaseHTTPRequestHandler):
         self.send_response(200)
 
         # Then send headers.
-        self.send_header('Content-type', 'text/plain; charset=utf-8')
+        self.send_header('Content-type', 'text/html; charset=utf-8')
         self.end_headers()
 
         # Now, write the response body.
