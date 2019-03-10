@@ -31,6 +31,7 @@ class MessageHandler(BaseHTTPRequestHandler):
 
         # Read the correct amount of data from the request.
         data = self.rfile.read(length).decode()
+
         # Extract the "message" field from the request data.
         message = parse_qs(data)["message"][0]
 
@@ -41,6 +42,9 @@ class MessageHandler(BaseHTTPRequestHandler):
         memory.append(message)
 
         # 1. Send a 303 redirect back to the root page.
+        self.send_response(303)
+        self.send_header('Location', '/')
+        self.end_headers()
 
     def do_GET(self):
         # First, send a 200 OK response.
@@ -51,8 +55,9 @@ class MessageHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
         # 2. Put the response together out of the form and the stored messages.
-
+        formMessage = form.format("\n".join(memory))
         # 3. Send the response.
+        self.wfile.write(formMessage.encode())
 
 if __name__ == '__main__':
     server_address = ('', 8000)
