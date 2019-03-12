@@ -40,6 +40,9 @@ class NameHandler(BaseHTTPRequestHandler):
 
         # Create cookie.
         c = cookies.SimpleCookie()
+        c["yourname"] = yourname
+        c["yourname"]["domain"] = localhost
+        c["yourname"]["max-age"] = 120
 
         # 1. Set the fields of the cookie.
         #    Give the cookie a value from the 'yourname' variable,
