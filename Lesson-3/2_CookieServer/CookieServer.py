@@ -44,7 +44,7 @@ class NameHandler(BaseHTTPRequestHandler):
         #    a domain (localhost), and a max-age.
         c = cookies.SimpleCookie()
         c["yourname"] = yourname
-        c["yourname"]["domain"] = localhost
+        c["yourname"]["domain"] = 'localhost'
         c["yourname"]["max-age"] = 120
 
         # Send a 303 back to the root page, with a cookie!
