@@ -3,7 +3,7 @@ import psycopg2
 
 DBNAME = "news"
 
-#List of queries:
+#List of test queries:
 query_0_1 = "select author from articles;"
 query_0_2 = "select * from authors;"
 query_0_3 = "select title, name from articles join authors on articles.author = authors.id;"
@@ -12,6 +12,8 @@ query_0_5 = "select substring(path from 10) as slug, count(*) as views from log 
 query_0_6 = "select title, views, author from articles ,(select substring(path from 10) as slug , count(*) as views from log where path like '%article%' and status like '2%' group by path ) as viewtab where articles.slug = viewtab.slug;"
 query_0_7 = "select date(time) as date, count(*) as error from log where status like '4%' group by date(time), status order by date(time);"
 query_0_8 = "select date(time) as date, count(*) as total from log group by date(time);"
+
+#List of answer queries
 query_1 = "select title, views from views_table order by views desc limit 3;"
 query_2 = "select name, sum(views) as views from views_table, authors where views_table.author = authors.id group by author, authors.name order by views desc;"
 query_3 = "select to_char(error_table.date, 'fmmonth dd, yyyy'), (error::real/total*100)::decimal(4, 2) from error_table, total_table where error_table.date = total_table.date and (error::float/total) >= 0.01;"
@@ -40,9 +42,12 @@ def create_view(query):
     db.commit()
     db.close()
 
-def print_results(object):
-    for obj in object:
-        print(obj)
+def print_results(qestion_text, query_answer, end_text):
+    print('\n' + '-' * 60)
+    print(question_text)
+    print('-' * 60 + '\n')
+    for qa in query_answer:
+        print('\t {} - {}{}'.format(qa[0], qa[1], end_text))
 
 #1. What are the most popular three articles of all time? Which articles have
 #been accessed the most? Present this information as a sorted list with the
@@ -69,4 +74,4 @@ if __name__ == "__main__":
     create_view(view_3)
 
     #Run Queries to answer questions
-    execute_posts(query_1)
+    #execute_posts(query_1)
