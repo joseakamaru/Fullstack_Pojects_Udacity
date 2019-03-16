@@ -19,10 +19,15 @@ query_2 = "select name, sum(views) as views from views_table, authors where view
 query_3 = "select to_char(error_table.date, 'fmmonth dd, yyyy'), (error::real/total*100)::decimal(4, 2) from error_table, total_table where error_table.date = total_table.date and (error::float/total) >= 0.01;"
 
 
- #List of views:
+#Create view tables:
 view_1 = "create view views_table as select title, views, author from articles ,(select substring(path from 10) as slug, count(*) as views from log where path like '%article%' and status like '2%' group by path) as viewtable where articles.slug = viewtable.slug;"
 view_2 = "create view error_table as select date(time) as date, count(*) as error from log where status like '4%' group by date(time), status order by date(time);"
 view_3 = "create view total_table as select date(time) as date, count(*) as total from log group by date(time);"
+
+#Delete view tables:
+delete_view_1 = "drop view views_table;"
+delete_view_2 = "drop view error_table;"
+delete_view_3 = "drop view total_table;"
 
 #Functions:
 def execute_posts(query):
@@ -34,15 +39,16 @@ def execute_posts(query):
     db.close()
     return posts
 
-def create_view(query):
-    """Creates a new view table form the 'database'."""
+def view_table_function(query):
+    """Commit queries use to create to delete a view table form the 'database'."""
     db = psycopg2.connect(database=DBNAME)
     c = db.cursor()
     c.execute(query)
     db.commit()
     db.close()
 
-def print_results(qestion_text, query_answer, end_text):
+def print_results(question_text, query_answer, end_text):
+    """Print results from the output of the view tables in the 'database'."""
     print('\n' + '-' * 60)
     print(question_text)
     print('-' * 60 + '\n')
@@ -53,7 +59,7 @@ def print_results(qestion_text, query_answer, end_text):
 #been accessed the most? Present this information as a sorted list with the
 #most popular article at the top.
 
-questions_1 = "What are the most popular three articles of all time?"
+question_1 = "What are the most popular three articles of all time?"
 
 #2. Who are the most popular article authors of all time? That is, when you sum
 #up all of the articles each author has written, which authors get the most page
@@ -68,10 +74,22 @@ question_2 = "Who are the most popular article authors of all time?"
 question_3 = "On which days did more than 1% of requests lead to errors?"
 
 if __name__ == "__main__":
-    #create views
-    create_view(view_1)
-    create_view(view_2)
-    create_view(view_3)
+    #create view tables
+    view_table_function(view_1)
+    view_table_function(view_2)
+    view_table_function(view_3)
 
     #Run Queries to answer questions
-    #execute_posts(query_1)
+    q1 = execute_posts(query_1)
+    q2 = execute_posts(query_2)
+    q3 = execute_posts(query_3)
+
+    #Print results
+    print_results(question_1, q1, ' views')
+    print_results(question_2, q2, ' views')
+    print_results(question_3, q3, '% error')
+
+    #Delete view tables
+    view_table_function(delete_view_1)
+    view_table_function(delete_view_2)
+    view_table_function(delete_view_3)
