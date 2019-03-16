@@ -13,15 +13,28 @@ query_0_6 = "select title, views, author from articles ,(select substring(path f
 query_0_7 = "select date(time) as date, count(*) as error from log where status like '4%' group by date(time), status order by date(time);"
 query_0_8 = "select date(time) as date, count(*) as total from log group by date(time);"
 
+ #List of views:
+view_1 = "create view views_table as select title, views, author from articles ,(select substring(path from 10) as slug, count(*) as views from log where path like '%article%' and status like '2%' group by path) as viewtable where articles.slug = viewtable.slug;"
+view_2 = "create view error_table as select date(time) as date, count(*) as error from log where status like '4%' group by date(time), status order by date(time);"
+view_3 = "create view total_table as select date(time) as date, count(*) as total from log group by date(time);"
+
 #Functions:
 def execute_posts(query):
-    """Return all posts from the 'database', most recent first."""
+    """Execute posts from the 'database' base on input query."""
     db = psycopg2.connect(database=DBNAME)
     c = db.cursor()
     c.execute(query)
     posts = c.fetchall()
     db.close()
     return posts
+
+def create_view(query):
+    """Creates a new view table form the 'database'."""
+    db = psycopg2.connect(database=DBNAME)
+    c = db.cursor()
+    c.execute(query)
+    db.commit()
+    db.close()
 
 def print_results(object):
     for obj in object:
@@ -31,27 +44,24 @@ def print_results(object):
 #been accessed the most? Present this information as a sorted list with the
 #most popular article at the top.
 
+questions_1 = "What are the most popular three articles of all time?"
+
 #2. Who are the most popular article authors of all time? That is, when you sum
 #up all of the articles each author has written, which authors get the most page
 #views? Present this as a sorted list with the most popular author at the top.
+
+question_2 = "Who are the most popular article authors of all time?"
 
 #3. On which days did more than 1% of requests lead to errors? The log table
 #includes a column status that indicates the HTTP status code that the news
 #site sent to the user's browser.
 
+question_3 = "On which days did more than 1% of requests lead to errors?"
+
 if __name__ == "__main__":
-    object_2 = execute_posts(query_2)
-    print_results(object_2)
+    #create views
+    create_view(view_1)
+    create_view(view_2)
+    create_view(view_3)
 
-"""
-create view topfive as select species, count(*) as num
-  from animals
-  group by species
-  order by num desc
-  limit 5;
-
-
--- Don't change the statement below!  It's there to test the view.
-
-select * from topfive;
-"""
+    #print_results(V1)
