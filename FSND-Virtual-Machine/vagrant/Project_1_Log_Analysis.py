@@ -12,6 +12,10 @@ query_0_5 = "select substring(path from 10) as slug, count(*) as views from log 
 query_0_6 = "select title, views, author from articles ,(select substring(path from 10) as slug , count(*) as views from log where path like '%article%' and status like '2%' group by path ) as viewtab where articles.slug = viewtab.slug;"
 query_0_7 = "select date(time) as date, count(*) as error from log where status like '4%' group by date(time), status order by date(time);"
 query_0_8 = "select date(time) as date, count(*) as total from log group by date(time);"
+query_1 = "select title, views from views_table order by views desc limit 3;"
+query_2 = "select name, sum(views) as views from views_table, authors where views_table.author = authors.id group by author, authors.name order by views desc;"
+query_3 = "select to_char(error_table.date, 'fmmonth dd, yyyy'), (error::real/total*100)::decimal(4, 2) from error_table, total_table where error_table.date = total_table.date and (error::float/total) >= 0.01;"
+
 
  #List of views:
 view_1 = "create view views_table as select title, views, author from articles ,(select substring(path from 10) as slug, count(*) as views from log where path like '%article%' and status like '2%' group by path) as viewtable where articles.slug = viewtable.slug;"
@@ -64,4 +68,5 @@ if __name__ == "__main__":
     create_view(view_2)
     create_view(view_3)
 
-    #print_results(V1)
+    #Run Queries to answer questions
+    execute_posts(query_1)
