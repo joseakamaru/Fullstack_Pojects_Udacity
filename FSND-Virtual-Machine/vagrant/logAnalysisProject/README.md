@@ -79,7 +79,7 @@ Clone, or download, files for this project from the [Github directory, here](htt
 
 You should receive the following output:
 
-![Output Image](/images/output_text.png)
+![Output Image](images/output_text.png)
 
 ### Running the database
 The PostgreSQL database server will automatically be started inside the VM. You can use the psql command-line tool to access it and run SQL statements
