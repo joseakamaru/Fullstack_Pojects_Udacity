@@ -16,7 +16,11 @@ The program will run from the command line. It won't take any input from the use
 This project, will be using a PostgreSQL database. If you'd like to know a lot more about the kinds of queries that you can use in this dialect of SQL, check out the PostgreSQL documentation. It's a lot of detail, but it spells out all the many things the database can do. [link to PostgreSQL!](https://www.postgresql.org/docs/9.5/index.html)
 
 ## Getting Started
-To run this program, you'll need database software (provided by a Linux virtual machine) and the data to analyze.
+To run this program, you'll need database software (provided by a Linux virtual machine) and the data to analyze. You will also need to install python 3 on your device along with Psycopg2. Run the following commands
+* `(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`Downloads Homebrew for Mac
+  * [Homebrew website](https://brew.sh)
+* `brew install python3`
+* `brew install psycopg2` or `sudo pip3 install psycopg2`
 
 ### The Virtual Machine
 The VM is a Linux server system that runs on top of your own computer. You can share files easily between your computer and the VM; and you'll be running a web service inside the VM which you'll be able to access from your regular browser.
@@ -50,6 +54,7 @@ Run the following commands in the terminal to get things set up:
 * `cd FSND-Virtual-Machine/vagrant`
 * `vagrant up`
 * `vagrant ssh`
+* `cd /vagrant`
 
 The `vagrant up` command will cause Vagrant to download the Linux operating system and install it. This may take quite a while (many minutes) depending on how fast your Internet connection is.
 
@@ -62,4 +67,71 @@ The files you see here are the same as the ones in the `vagrant` subdirectory on
 
 Files in the VM's `/vagrant` directory are shared with the `vagrant` folder on your computer. But other data inside the VM is not. For instance, the PostgreSQL database itself lives only inside the VM.
 
-Download the files for this project from the Github directory, here. 
+Next, [download the data here](https://d17h27t6h515a5.cloudfront.net/topher/2016/August/57b5f748_newsdata/newsdata.zip) for this project. You will need to unzip this file after downloading it. The file inside is called `newsdata.sql`. Put this file into the `vagrant` directory, which is shared with your virtual machine.
+
+To build the reporting tool, you'll need to load the site's data into your local database. Run the folloing commands:
+* `cd vagrant` if you are not already in the folder in the virtual machine
+* `psql -d news -f newsdata.sql`
+
+Clone, or download, files for this project from the [Github directory, here](https://github.com/joseakamaru/Fullstack_Pojects_Udacity/tree/master/FSND-Virtual-Machine/vagrant/logAnalysisProject) into the vagrant folder, and run the following command form the command window for the virtual machine.
+
+* `python Project_1_Log_Analysis.py`
+
+You should receive the following output:
+
+------------------------------------------------------------
+------------------------------------------------------------
+
+                    News Log Report
+
+------------------------------------------------------------
+1 - What are the most popular three articles of all time?
+------------------------------------------------------------
+
+	 Candidate is jerk, alleges rival - 338647 views
+	 Bears love berries, alleges bear - 253801 views
+	 Bad things gone, say good people - 170098 views
+
+------------------------------------------------------------
+2 - Who are the most popular article authors of all time?
+------------------------------------------------------------
+
+	 Ursula La Multa - 507594 views
+	 Rudolf von Treppenwitz - 423457 views
+	 Anonymous Contributor - 170098 views
+	 Markoff Chaney - 84557 views
+
+------------------------------------------------------------
+3 - On which days did more than 1% of requests lead to errors?
+------------------------------------------------------------
+
+	 July 17, 2016 - 2.26% error
+
+                          End
+------------------------------------------------------------
+------------------------------------------------------------
+
+### Running the database
+The PostgreSQL database server will automatically be started inside the VM. You can use the psql command-line tool to access it and run SQL statements
+
+### Logging out and in
+If you type `exit` (or `Ctrl-D`) at the shell prompt inside the VM, you will be logged out, and put back into your host computer's shell. To log back in, make sure you're in the same directory and type `vagrant ssh` again.
+
+If you reboot your computer, you will need to run `vagrant up` to restart the VM.
+
+### Created views
+view_1:
+`create view views_table as select title, views, author
+            from articles ,(select substring(path from 10) as slug, count(*)
+            as views from log where path like '%article%' and
+            status like '2%' group by path) as viewtable where
+            articles.slug = viewtable.slug;`
+
+view_2:
+`create view error_table as select date(time) as date,
+            count(*) as error from log where status like '4%'
+            group by date(time), status order by date(time);`
+
+view_3:
+`create view total_table as select date(time) as date,
+            count(*) as total from log group by date(time);`
