@@ -90,6 +90,8 @@ If you type `exit` (or `Ctrl-D`) at the shell prompt inside the VM, you will be 
 If you reboot your computer, you will need to run `vagrant up` to restart the VM.
 
 ### Created views
+The create views commands are automatically run, setup, and delete when the python file Project_1_Log_Analysis.py is run. 
+
 view_1:
 `create view views_table as select title, views, author
             from articles ,(select substring(path from 10) as slug, count(*)
