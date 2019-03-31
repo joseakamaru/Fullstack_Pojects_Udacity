@@ -1,8 +1,30 @@
-#!/usr/bin/env python2.7
 # Imports:
 import psycopg2
 
 DBNAME = "news"
+
+# List of test queries:
+query_0_1 = "select author from articles;"
+query_0_2 = "select * from authors;"
+query_0_3 = """select title, name from articles join authors on
+            articles.author = authors.id;"""
+query_0_3 = """select title, name from articles join authors on
+            articles.author = authors.id;"""
+query_0_4 = """select path, count(*) as views from log where path
+            like'%article%' and status like '2%' group by path
+            order by views desc;"""
+query_0_5 = """select substring(path from 10) as slug, count(*) as views
+            from log where path like'%article%' and status like '2%'
+            group by path order by views desc;"""
+query_0_6 = """select title, views, author from articles ,(select
+            substring(path from 10) as slug , count(*) as views from log
+            where path like '%article%' and status like '2%' group by path ) as
+            viewtab where articles.slug = viewtab.slug;"""
+query_0_7 = """select date(time) as date, count(*) as error from log where
+            status like '4%' group by date(time), status
+            order by date(time);"""
+query_0_8 = """select date(time) as date, count(*) as total from log
+            group by date(time);"""
 
 # List of answer queries
 query_1 = "select title, views from views_table order by views desc limit 3;"
